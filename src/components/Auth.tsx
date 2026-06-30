@@ -14,8 +14,15 @@ export function Auth({ onLogin }: AuthProps) {
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    if (username === 'admin' && password === 'admin123') {
+    
+    const uname = username.toLowerCase();
+    
+    if (uname === 'admin' && password === 'admin123') {
       onLogin('Admin');
+    } else if (uname === 'superadmin' && password === 'superadmin123') {
+      onLogin('Super Admin');
+    } else if (uname === 'member' && password === 'member123') {
+      onLogin('Member');
     } else {
       setError('Invalid username or password');
     }
@@ -133,8 +140,11 @@ export function Auth({ onLogin }: AuthProps) {
             </motion.button>
           </form>
 
-          <div className="mt-6 text-center">
-            <p className="text-xs text-zinc-500">Demo Login: Username <span className="text-zinc-300 font-bold">admin</span> / Password <span className="text-zinc-300 font-bold">admin123</span></p>
+          <div className="mt-6 text-center flex flex-col gap-1">
+            <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-1">System Access Credentials</p>
+            <p className="text-xs text-zinc-500">Super Admin: <span className="text-red-500 font-bold">superadmin</span> / <span className="text-zinc-300">superadmin123</span></p>
+            <p className="text-xs text-zinc-500">Admin: <span className="text-red-500 font-bold">admin</span> / <span className="text-zinc-300">admin123</span></p>
+            <p className="text-xs text-zinc-500">Member: <span className="text-red-500 font-bold">member</span> / <span className="text-zinc-300">member123</span></p>
           </div>
         </motion.div>
       </motion.div>

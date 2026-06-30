@@ -20,6 +20,7 @@ import { Enquiries } from './components/Enquiries';
 import { Finances } from './components/Finances';
 import { Auth } from './components/Auth';
 import { Kiosk } from './components/Kiosk';
+import { MemberPortal } from './components/MemberPortal';
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -46,11 +47,15 @@ export default function App() {
     return <Kiosk onExit={() => setIsKioskMode(false)} />;
   }
 
+  if (userRole === 'Member') {
+    return <MemberPortal onLogout={handleLogout} />;
+  }
+
   const renderView = () => {
     switch(activeView) {
-      case 'Dashboard': return <Dashboard />;
+      case 'Dashboard': return <Dashboard isSuperAdmin={userRole === 'Super Admin'} />;
       case 'Enquiries': return <Enquiries />;
-      case 'Members': return <Members />;
+      case 'Members': return <Members isSuperAdmin={userRole === 'Super Admin'} />;
       case 'Trainers': return <Trainers />;
       case 'Classes': return <Classes />;
       case 'Bookings': return <Bookings />;
@@ -62,15 +67,15 @@ export default function App() {
       case 'Reports': return <Reports />;
       case 'Notifications': return <Notifications />;
       case 'Settings': return <Settings />;
-      default: return <Dashboard />;
+      default: return <Dashboard isSuperAdmin={userRole === 'Super Admin'} />;
     }
   };
 
   return (
     <div className="flex min-h-screen bg-[#050505] font-sans selection:bg-red-500/30">
-      <Sidebar activeItem={activeView} setActiveItem={setActiveView} />
+      <Sidebar activeItem={activeView} setActiveItem={setActiveView} userRole={userRole} />
       <div className="flex-1 md:ml-64 flex flex-col min-h-screen">
-        <Header title={activeView} onLogout={handleLogout} onKioskMode={() => setIsKioskMode(true)} />
+        <Header title={activeView} onLogout={handleLogout} onKioskMode={() => setIsKioskMode(true)} userRole={userRole} />
         <main className="flex-1 overflow-x-hidden overflow-y-auto">
           {renderView()}
         </main>

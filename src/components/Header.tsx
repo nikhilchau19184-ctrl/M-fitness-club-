@@ -5,9 +5,10 @@ interface HeaderProps {
   title: string;
   onLogout?: () => void;
   onKioskMode?: () => void;
+  userRole?: string;
 }
 
-export function Header({ title, onLogout, onKioskMode }: HeaderProps) {
+export function Header({ title, onLogout, onKioskMode, userRole = 'Admin User' }: HeaderProps) {
   const [showDropdown, setShowDropdown] = useState(false);
 
   return (
@@ -40,13 +41,13 @@ export function Header({ title, onLogout, onKioskMode }: HeaderProps) {
             onClick={() => setShowDropdown(!showDropdown)}
           >
             <img 
-              src="https://ui-avatars.com/api/?name=Admin+User&background=random" 
-              alt="Admin" 
+              src={`https://ui-avatars.com/api/?name=${userRole.replace(' ', '+')}&background=random`} 
+              alt={userRole} 
               className="w-10 h-10 rounded-full"
             />
             <div className="hidden md:block text-left">
-              <p className="text-sm font-medium text-white leading-tight">Admin User</p>
-              <p className="text-xs text-zinc-400">admin@fitnessclub.com</p>
+              <p className="text-sm font-medium text-white leading-tight">{userRole}</p>
+              <p className="text-xs text-zinc-400">{userRole.toLowerCase().replace(' ', '')}@fitnessclub.com</p>
             </div>
             <ChevronDown className="w-4 h-4 text-zinc-400" />
           </div>

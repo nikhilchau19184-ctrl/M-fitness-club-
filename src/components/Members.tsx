@@ -8,7 +8,7 @@ const members = [
   { id: 4, name: 'Pooja Mehta', email: 'pooja@gmail.com', phone: '+91 9876543213', plan: 'Gold', status: 'Active', joinDate: '09 May 2024', avatar: 'https://ui-avatars.com/api/?name=Pooja+Mehta&background=f4f4f5&color=18181b', weight: '65', height: '165', bmi: '23.9' },
 ];
 
-export function Members() {
+export function Members({ isSuperAdmin }: { isSuperAdmin?: boolean }) {
   const [showAssessment, setShowAssessment] = useState<number | null>(null);
   const [showActionMenu, setShowActionMenu] = useState<number | null>(null);
 

@@ -33,7 +33,7 @@ const navItems = [
   { title: 'Settings', icon: Settings, href: '#settings' },
 ];
 
-export function Sidebar({ activeItem, setActiveItem }: { activeItem: string, setActiveItem: (item: string) => void }) {
+export function Sidebar({ activeItem, setActiveItem, userRole }: { activeItem: string, setActiveItem: (item: string) => void, userRole?: string }) {
 
   return (
     <div className="w-64 h-screen bg-[#0a0a0a] border-r border-[#1f1f1f] flex flex-col hidden md:flex fixed top-0 left-0">

@@ -33,9 +33,40 @@ const upcomingClasses = [
   { time: '07:00 PM', name: 'HIIT', trainer: 'Rohit' },
 ];
 
-export function Dashboard() {
+export function Dashboard({ isSuperAdmin }: { isSuperAdmin?: boolean }) {
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
+      {/* Super Admin Real-Time Log */}
+      {isSuperAdmin && (
+        <div className="bg-[#141414] border border-red-900/30 rounded-2xl p-6 shadow-sm shadow-red-900/10 mb-6">
+          <div className="flex justify-between items-center mb-4">
+            <div className="flex items-center gap-2">
+              <div className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse" />
+              <h3 className="text-lg font-bold text-white tracking-tight uppercase">Real-Time Access Log</h3>
+            </div>
+            <span className="text-xs bg-red-500/10 text-red-500 font-bold px-3 py-1 rounded-full uppercase tracking-wider">Super Admin View</span>
+          </div>
+          <div className="flex flex-col gap-2 h-40 overflow-y-auto pr-2 custom-scrollbar">
+            {[
+              { time: 'Just now', user: 'Amit Verma', action: 'Checked In', type: 'in', method: 'Biometric' },
+              { time: '2 mins ago', user: 'Rahul Singh', action: 'Checked Out', type: 'out', method: 'Biometric' },
+              { time: '5 mins ago', user: 'Pooja Mehta', action: 'Checked In', type: 'in', method: 'RFID Card' },
+              { time: '12 mins ago', user: 'Neha Sharma', action: 'Checked In', type: 'in', method: 'Manual Entry' },
+              { time: '15 mins ago', user: 'Vikram (Trainer)', action: 'Checked In', type: 'in', method: 'Biometric' },
+            ].map((log, i) => (
+              <div key={i} className="flex justify-between items-center p-3 bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl text-sm">
+                <div className="flex items-center gap-3">
+                  <span className="text-zinc-500 font-mono text-xs w-20">{log.time}</span>
+                  <span className="text-white font-bold">{log.user}</span>
+                  <span className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded ${log.type === 'in' ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`}>{log.action}</span>
+                </div>
+                <span className="text-xs text-zinc-500 font-medium">via {log.method}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Stats Row */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard title="Total Members" value="1,250" trend="+12% this month" icon={<Users className="w-6 h-6 text-red-500" />} />
