@@ -1,66 +1,70 @@
 import React, { useState, useEffect } from 'react';
 import { QrCode, ClipboardList, Activity, Apple, BarChart2, Bell, Check, Trash2, Send, Clock, UserCheck, AlertTriangle } from 'lucide-react';
+import { getMembers, addAttendance, getAttendance } from '../lib/db';
 
 interface AttendanceLog {
-  id: string;
+  id?: string;
+  memberId: string;
   memberName: string;
-  memberEmail: string;
-  scanTime: string;
+  scanTime: any;
   status: 'Granted' | 'Access Denied';
   reason?: string;
 }
 
-const initialScans: AttendanceLog[] = [
-  { id: 'att1', memberName: 'Amit Verma', memberEmail: 'amit@gmail.com', scanTime: '2026-06-25 08:15 AM', status: 'Granted' },
-  { id: 'att2', memberName: 'Neha Sharma', memberEmail: 'neha@gmail.com', scanTime: '2026-06-25 09:02 AM', status: 'Granted' },
-  { id: 'att3', memberName: 'Rahul Singh', memberEmail: 'rahul@gmail.com', scanTime: '2026-06-25 10:11 AM', status: 'Access Denied', reason: 'Membership Expired/Inactive' },
-];
-
 export function Attendance() {
-  const [logs, setLogs] = useState<AttendanceLog[]>(() => {
-    const saved = localStorage.getItem('fc_attendance_logs');
-    return saved ? JSON.parse(saved) : initialScans;
-  });
-
+  const [logs, setLogs] = useState<AttendanceLog[]>([]);
+  const [members, setMembers] = useState<any[]>([]);
   const [showScannerModal, setShowScannerModal] = useState(false);
-  const [selectedScanMember, setSelectedScanMember] = useState('Amit Verma');
+  const [selectedScanMember, setSelectedScanMember] = useState('');
+  const [manualInput, setManualInput] = useState('');
 
   useEffect(() => {
-    localStorage.setItem('fc_attendance_logs', JSON.stringify(logs));
-  }, [logs]);
+    fetchMembers();
+    fetchLogs();
+  }, []);
 
-  const handleSimulateScan = () => {
-    const memberEmails: Record<string, string> = {
-      'Amit Verma': 'amit@gmail.com',
-      'Neha Sharma': 'neha@gmail.com',
-      'Rahul Singh': 'rahul@gmail.com',
-      'Pooja Mehta': 'pooja@gmail.com'
+  const fetchMembers = async () => {
+    const data = await getMembers();
+    setMembers(data);
+    if (data.length > 0) {
+      setSelectedScanMember(data[0].id);
+    }
+  };
+
+  const fetchLogs = async () => {
+    const data = await getAttendance();
+    setLogs(data as any);
+  };
+
+  const handleSimulateScan = async (memberIdOverride?: string) => {
+    const memberIdToUse = memberIdOverride || selectedScanMember;
+    const member = members.find(m => m.id === memberIdToUse || m.memberId === memberIdToUse);
+    
+    if (!member) {
+      alert("Member not found!");
+      return;
+    }
+
+    const isActive = member.status === 'Active';
+    const status = isActive ? 'Granted' : 'Access Denied';
+    const reason = isActive ? undefined : 'Membership Expired/Inactive';
+
+    const newLog = {
+      memberId: member.id,
+      memberName: member.fullName || member.name,
+      scanTime: new Date(),
+      status,
+      reason
     };
 
-    const memberStatus: Record<string, 'Granted' | 'Access Denied'> = {
-      'Amit Verma': 'Granted',
-      'Neha Sharma': 'Granted',
-      'Rahul Singh': 'Access Denied', // Inactive in our db
-      'Pooja Mehta': 'Granted'
-    };
-
-    const now = new Date();
-    const timeString = now.toLocaleDateString() + ' ' + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-    const newLog: AttendanceLog = {
-      id: 'log_' + Date.now(),
-      memberName: selectedScanMember,
-      memberEmail: memberEmails[selectedScanMember] || 'member@gmail.com',
-      scanTime: timeString,
-      status: memberStatus[selectedScanMember] || 'Granted',
-      reason: memberStatus[selectedScanMember] === 'Access Denied' ? 'Membership Expired/Inactive' : undefined
-    };
-
-    setLogs(prev => [newLog, ...prev]);
+    await addAttendance(newLog);
+    fetchLogs();
     setShowScannerModal(false);
+    setManualInput('');
   };
 
   const clearLogs = () => {
+    // Only clearing local view for safety
     setLogs([]);
   };
 
@@ -76,24 +80,45 @@ export function Attendance() {
             onClick={clearLogs}
             className="px-3 py-1.5 border border-[#2a2a2a] hover:border-red-500/30 text-zinc-400 hover:text-red-500 rounded-xl text-xs font-semibold uppercase tracking-wider transition-colors"
           >
-            Clear History
+            Clear Screen
           </button>
         )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[400px]">
         {/* Interactive QR Simulation Card */}
-        <div className="lg:col-span-5 bg-[#141414] rounded-3xl border border-[#1f1f1f] p-8 shadow-sm flex flex-col items-center justify-center text-center">
-          <div 
-            onClick={() => setShowScannerModal(true)}
-            className="w-64 h-64 bg-[#1a1a1a] rounded-3xl border-2 border-dashed border-[#2a2a2a] flex flex-col items-center justify-center mb-6 relative overflow-hidden group cursor-pointer hover:border-red-500/50 transition-all"
-          >
-            <QrCode className="w-20 h-20 text-zinc-500 group-hover:text-red-500 transition-colors duration-300" />
-            <p className="mt-4 text-xs font-bold text-zinc-500 uppercase tracking-wider group-hover:text-white transition-colors">Click to Simulate Scan</p>
-            <div className="absolute top-0 w-full h-1 bg-red-500/50 blur-sm transform -translate-y-full group-hover:translate-y-[256px] transition-transform duration-1000 ease-linear repeat-infinite"></div>
+        <div className="lg:col-span-5 flex flex-col gap-4">
+          <div className="bg-[#141414] rounded-3xl border border-[#1f1f1f] p-8 shadow-sm flex flex-col items-center justify-center text-center">
+            <div 
+              onClick={() => setShowScannerModal(true)}
+              className="w-48 h-48 bg-[#1a1a1a] rounded-3xl border-2 border-dashed border-[#2a2a2a] flex flex-col items-center justify-center mb-6 relative overflow-hidden group cursor-pointer hover:border-red-500/50 transition-all"
+            >
+              <QrCode className="w-16 h-16 text-zinc-500 group-hover:text-red-500 transition-colors duration-300" />
+              <p className="mt-4 text-xs font-bold text-zinc-500 uppercase tracking-wider group-hover:text-white transition-colors">Click to Simulate Scan</p>
+              <div className="absolute top-0 w-full h-1 bg-red-500/50 blur-sm transform -translate-y-full group-hover:translate-y-[192px] transition-transform duration-1000 ease-linear repeat-infinite"></div>
+            </div>
+            <h3 className="text-lg font-bold text-white">Scan Member QR Code</h3>
+            <p className="text-sm text-zinc-400 mt-2 max-w-xs">Simulate a member scanning their digital ID card to trigger entrance logs.</p>
           </div>
-          <h3 className="text-lg font-bold text-white">Scan Member QR Code</h3>
-          <p className="text-sm text-zinc-400 mt-2 max-w-xs">Simulate a member scanning their personal application barcode to trigger entrance logs.</p>
+
+          <div className="bg-[#141414] rounded-3xl border border-[#1f1f1f] p-6 shadow-sm">
+            <h3 className="text-sm font-bold text-white mb-2">Manual Attendance Entry</h3>
+            <div className="flex gap-2">
+              <input 
+                type="text" 
+                placeholder="Enter Member ID (e.g. MF-1001)"
+                value={manualInput}
+                onChange={e => setManualInput(e.target.value)}
+                className="flex-1 bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-red-500"
+              />
+              <button 
+                onClick={() => handleSimulateScan(manualInput)}
+                className="bg-red-600 hover:bg-red-700 text-white font-bold text-sm px-4 py-2 rounded-xl transition-all"
+              >
+                Enter
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* Real-time Entrance Logs */}
@@ -102,7 +127,7 @@ export function Attendance() {
             <UserCheck className="w-5 h-5 text-red-500" /> Entrance Scan Logs ({logs.length})
           </h3>
 
-          <div className="flex-1 overflow-y-auto max-h-[400px] space-y-3 pr-2 custom-scrollbar">
+          <div className="flex-1 overflow-y-auto max-h-[500px] space-y-3 pr-2 custom-scrollbar">
             {logs.length === 0 ? (
               <div className="h-full flex items-center justify-center text-zinc-500 text-sm border border-dashed border-[#2a2a2a] rounded-2xl bg-[#1a1a1a] py-20">
                 No active entrance logs recorded today.
@@ -115,7 +140,12 @@ export function Attendance() {
                     <div>
                       <h4 className="text-sm font-semibold text-white">{log.memberName}</h4>
                       <p className="text-[10px] text-zinc-500 flex items-center gap-1.5 mt-0.5">
-                        <Clock className="w-3.5 h-3.5 text-zinc-600" /> {log.scanTime}
+                        <Clock className="w-3.5 h-3.5 text-zinc-600" /> 
+                        {(log as any).checkIn?.seconds 
+                          ? new Date((log as any).checkIn.seconds * 1000).toLocaleString() 
+                          : log.scanTime?.seconds 
+                            ? new Date(log.scanTime.seconds * 1000).toLocaleString()
+                            : new Date((log as any).checkIn || log.scanTime).toLocaleString()}
                       </p>
                     </div>
                   </div>
@@ -156,15 +186,14 @@ export function Attendance() {
                   onChange={e => setSelectedScanMember(e.target.value)}
                   className="w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-red-500"
                 >
-                  <option value="Amit Verma">Amit Verma (Active - Platinum)</option>
-                  <option value="Neha Sharma">Neha Sharma (Active - Gold)</option>
-                  <option value="Rahul Singh">Rahul Singh (Inactive - Access Denied!)</option>
-                  <option value="Pooja Mehta">Pooja Mehta (Active - Gold)</option>
+                  {members.map(m => (
+                    <option key={m.id} value={m.id}>{m.fullName || m.name} ({m.memberId} - {m.status})</option>
+                  ))}
                 </select>
               </div>
 
               <button 
-                onClick={handleSimulateScan}
+                onClick={() => handleSimulateScan()}
                 className="w-full bg-red-600 hover:bg-red-700 text-white font-bold text-xs uppercase tracking-wider py-2.5 rounded-xl transition-all"
               >
                 Trigger Scan Simulation
@@ -187,11 +216,7 @@ interface NotificationMsg {
   type: 'alert' | 'update' | 'message';
 }
 
-const initialNotifications: NotificationMsg[] = [
-  { id: 'n1', title: 'New Booking Reservation', message: 'Neha Sharma requested to book Yoga Class tomorrow at 08:00 AM.', time: '10 min ago', read: false, type: 'message' },
-  { id: 'n2', title: 'Attendance Alert', message: 'Rahul Singh tried to enter with an expired subscription. Access Denied.', time: '1 hour ago', read: false, type: 'alert' },
-  { id: 'n3', title: 'System Backup Completed', message: 'Automated database synchronization completed successfully.', time: '4 hours ago', read: true, type: 'update' },
-];
+const initialNotifications: NotificationMsg[] = [];
 
 export function Notifications() {
   const [notifs, setNotifs] = useState<NotificationMsg[]>(() => {

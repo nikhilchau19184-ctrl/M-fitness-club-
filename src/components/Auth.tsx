@@ -1,30 +1,47 @@
 import React, { useState } from 'react';
 import { Lock, User, ShieldCheck } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { auth } from '../lib/firebase';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { getMemberByAuthId } from '../lib/db';
 
 interface AuthProps {
-  onLogin: (role: string) => void;
+  onLogin: (role: string, member?: any) => void;
 }
 
 export function Auth({ onLogin }: AuthProps) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     
-    const uname = username.toLowerCase();
+    const uname = username.toLowerCase().trim();
+    const pass = password.trim();
     
-    if (uname === 'admin' && password === 'admin123') {
-      onLogin('Admin');
-    } else if (uname === 'superadmin' && password === 'superadmin123') {
+    // Master admin credential
+    if (uname === 'admin' && pass === 'admin123') {
       onLogin('Super Admin');
-    } else if (uname === 'member' && password === 'member123') {
-      onLogin('Member');
-    } else {
+      return;
+    }
+    
+    try {
+      setLoading(true);
+      const userCredential = await signInWithEmailAndPassword(auth, `${uname}@mfitness.club`, pass);
+      const member = await getMemberByAuthId(userCredential.user.uid);
+      if (member) {
+        onLogin('Member', member);
+      } else {
+        // If not found in members, treat as Super Admin (e.g. receptionist/admin)
+        onLogin('Super Admin');
+      }
+    } catch (err: any) {
       setError('Invalid username or password');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -95,7 +112,7 @@ export function Auth({ onLogin }: AuthProps) {
                   required
                   value={username}
                   onChange={e => setUsername(e.target.value)}
-                  placeholder="admin"
+                  placeholder="Enter your username"
                   className="w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl pl-10 pr-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-red-500/50 transition-all" 
                 />
               </div>
@@ -139,13 +156,6 @@ export function Auth({ onLogin }: AuthProps) {
               Sign In
             </motion.button>
           </form>
-
-          <div className="mt-6 text-center flex flex-col gap-1">
-            <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-1">System Access Credentials</p>
-            <p className="text-xs text-zinc-500">Super Admin: <span className="text-red-500 font-bold">superadmin</span> / <span className="text-zinc-300">superadmin123</span></p>
-            <p className="text-xs text-zinc-500">Admin: <span className="text-red-500 font-bold">admin</span> / <span className="text-zinc-300">admin123</span></p>
-            <p className="text-xs text-zinc-500">Member: <span className="text-red-500 font-bold">member</span> / <span className="text-zinc-300">member123</span></p>
-          </div>
         </motion.div>
       </motion.div>
     </div>

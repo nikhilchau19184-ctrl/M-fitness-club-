@@ -1,12 +1,7 @@
 import React from 'react';
 import { Plus, Users, MapPin } from 'lucide-react';
 
-const schedule = [
-  { time: '07:00 AM', name: 'Strength Training', trainer: 'Vikram Singh', location: 'Main Floor', capacity: 25, booked: 22, duration: '60 min', type: 'strength' },
-  { time: '08:00 AM', name: 'Morning Yoga', trainer: 'Anjali Desai', location: 'Studio A', capacity: 20, booked: 20, duration: '45 min', type: 'flexibility' },
-  { time: '05:00 PM', name: 'HIIT Blast', trainer: 'Rohit Sharma', location: 'Studio B', capacity: 15, booked: 12, duration: '45 min', type: 'cardio' },
-  { time: '06:00 PM', name: 'Zumba Party', trainer: 'Pooja Kapoor', location: 'Studio A', capacity: 30, booked: 28, duration: '60 min', type: 'cardio' },
-];
+const schedule: any[] = [];
 
 export function Classes() {
   return (

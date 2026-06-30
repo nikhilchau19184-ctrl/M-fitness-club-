@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Dumbbell, User, Award, CheckCircle2, ChevronRight, Play } from 'lucide-react';
+import { getMembers } from '../lib/db';
 
 interface Exercise {
   name: string;
@@ -14,42 +15,22 @@ interface WorkoutPlan {
   name: string;
   difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
   durationWeeks: number;
+  assigneeId: string;
   assignedTo: string;
   exercises: Exercise[];
 }
 
-const initialWorkoutPlans: WorkoutPlan[] = [
-  {
-    id: 'wp1',
-    name: 'Push Day Power',
-    difficulty: 'Intermediate',
-    durationWeeks: 8,
-    assignedTo: 'Amit Verma',
-    exercises: [
-      { name: 'Incline Dumbbell Bench Press', muscleGroup: 'Chest', sets: 4, reps: 10, weight: '24 kg' },
-      { name: 'Overhead Shoulder Press', muscleGroup: 'Shoulders', sets: 3, reps: 12, weight: '15 kg' },
-      { name: 'Tricep Rope Pushdowns', muscleGroup: 'Triceps', sets: 4, reps: 15, weight: '20 kg' }
-    ]
-  },
-  {
-    id: 'wp2',
-    name: 'Yoga Stretch & Tone',
-    difficulty: 'Beginner',
-    durationWeeks: 4,
-    assignedTo: 'Neha Sharma',
-    exercises: [
-      { name: 'Downward Dog Hold', muscleGroup: 'Full Body', sets: 3, reps: 1, weight: 'Bodyweight' },
-      { name: 'Warrior II Pose', muscleGroup: 'Legs / Core', sets: 3, reps: 5, weight: 'Bodyweight' },
-      { name: 'Cobra Stretch Flow', muscleGroup: 'Back', sets: 4, reps: 8, weight: 'Bodyweight' }
-    ]
-  }
-];
-
 export function WorkoutPlans() {
   const [plans, setPlans] = useState<WorkoutPlan[]>(() => {
     const saved = localStorage.getItem('fc_workouts');
-    return saved ? JSON.parse(saved) : initialWorkoutPlans;
+    return saved ? JSON.parse(saved) : [];
   });
+
+  const [members, setMembers] = useState<any[]>([]);
+
+  useEffect(() => {
+    getMembers().then(setMembers);
+  }, []);
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [activePlanId, setActivePlanId] = useState<string | null>(plans[0]?.id || null);
@@ -58,7 +39,7 @@ export function WorkoutPlans() {
   const [planName, setPlanName] = useState('');
   const [difficulty, setDifficulty] = useState<'Beginner' | 'Intermediate' | 'Advanced'>('Intermediate');
   const [duration, setDuration] = useState(4);
-  const [assignee, setAssignee] = useState('Amit Verma');
+  const [assigneeId, setAssigneeId] = useState('');
 
   // Exercise builder sub-form state
   const [exercises, setExercises] = useState<Exercise[]>([]);
@@ -94,12 +75,16 @@ export function WorkoutPlans() {
     e.preventDefault();
     if (!planName.trim() || exercises.length === 0) return;
 
+    const member = members.find(m => m.id === assigneeId);
+    if (!member) return;
+
     const newPlan: WorkoutPlan = {
       id: 'wp_' + Date.now(),
       name: planName,
       difficulty,
       durationWeeks: duration,
-      assignedTo: assignee,
+      assigneeId: member.id,
+      assignedTo: member.fullName || member.name,
       exercises
     };
 
@@ -265,14 +250,14 @@ export function WorkoutPlans() {
                 <div>
                   <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-1.5">Assign to Member</label>
                   <select 
-                    value={assignee}
-                    onChange={e => setAssignee(e.target.value)}
+                    value={assigneeId}
+                    onChange={e => setAssigneeId(e.target.value)}
                     className="w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-red-500"
                   >
-                    <option value="Amit Verma">Amit Verma</option>
-                    <option value="Neha Sharma">Neha Sharma</option>
-                    <option value="Rahul Singh">Rahul Singh</option>
-                    <option value="Pooja Mehta">Pooja Mehta</option>
+                    <option value="">-- Select Member --</option>
+                    {members.map(m => (
+                      <option key={m.id} value={m.id}>{m.fullName || m.name}</option>
+                    ))}
                   </select>
                 </div>
               </div>

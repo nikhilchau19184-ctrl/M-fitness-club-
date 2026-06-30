@@ -25,17 +25,22 @@ import { MemberPortal } from './components/MemberPortal';
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userRole, setUserRole] = useState('');
+  const [currentMember, setCurrentMember] = useState<any>(null);
   const [activeView, setActiveView] = useState('Dashboard');
   const [isKioskMode, setIsKioskMode] = useState(false);
 
-  const handleLogin = (role: string) => {
+  const handleLogin = (role: string, member?: any) => {
     setUserRole(role);
+    if (member) {
+      setCurrentMember(member);
+    }
     setIsAuthenticated(true);
   };
 
   const handleLogout = () => {
     setIsAuthenticated(false);
     setUserRole('');
+    setCurrentMember(null);
     setActiveView('Dashboard');
   };
 
@@ -48,7 +53,7 @@ export default function App() {
   }
 
   if (userRole === 'Member') {
-    return <MemberPortal onLogout={handleLogout} />;
+    return <MemberPortal onLogout={handleLogout} member={currentMember} />;
   }
 
   const renderView = () => {

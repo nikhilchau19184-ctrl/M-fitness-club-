@@ -19,12 +19,7 @@ const classDistribution = [
   { name: 'Spinning', booked: 140, capacity: 150 },
 ];
 
-const trainerLoad = [
-  { name: 'Vikram', clients: 42, rating: 4.8 },
-  { name: 'Anjali', clients: 35, rating: 4.9 },
-  { name: 'Pooja', clients: 28, rating: 4.7 },
-  { name: 'Rohit', clients: 31, rating: 4.6 },
-];
+const trainerLoad: any[] = [];
 
 export function Reports() {
   const [timeframe, setTimeframe] = useState<'6M' | '1Y' | 'ALL'>('6M');
@@ -185,23 +180,27 @@ export function Reports() {
           </div>
 
           <div className="space-y-4">
-            {trainerLoad.map((trainer, i) => (
-              <div key={i} className="space-y-1.5">
-                <div className="flex justify-between text-xs font-semibold">
-                  <span className="text-white">{trainer.name}</span>
-                  <div className="space-x-2 text-zinc-400">
-                    <span>{trainer.clients} Active Clients</span>
-                    <span className="text-yellow-500">★ {trainer.rating} Rating</span>
+            {trainerLoad.length === 0 ? (
+              <p className="text-zinc-500 text-xs text-center py-10">No active trainers recorded.</p>
+            ) : (
+              trainerLoad.map((trainer, i) => (
+                <div key={i} className="space-y-1.5">
+                  <div className="flex justify-between text-xs font-semibold">
+                    <span className="text-white">{trainer.name}</span>
+                    <div className="space-x-2 text-zinc-400">
+                      <span>{trainer.clients} Active Clients</span>
+                      <span className="text-yellow-500">★ {trainer.rating} Rating</span>
+                    </div>
+                  </div>
+                  <div className="h-2 w-full bg-zinc-800 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-red-600 rounded-full" 
+                      style={{ width: `${(trainer.clients / 50) * 100}%` }}
+                    ></div>
                   </div>
                 </div>
-                <div className="h-2 w-full bg-zinc-800 rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-red-600 rounded-full" 
-                    style={{ width: `${(trainer.clients / 50) * 100}%` }}
-                  ></div>
-                </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
       </div>

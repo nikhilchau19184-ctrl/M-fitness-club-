@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Apple, Flame, Award, ChevronRight, Check } from 'lucide-react';
+import { getMembers } from '../lib/db';
 
 interface Meal {
   type: 'Breakfast' | 'Lunch' | 'Dinner' | 'Snacks';
@@ -14,6 +15,7 @@ interface DietPlan {
   id: string;
   name: string;
   goal: string;
+  assigneeId: string;
   assignedTo: string;
   targetKcal: number;
   targetProtein: number;
@@ -22,46 +24,17 @@ interface DietPlan {
   meals: Meal[];
 }
 
-const initialDietPlans: DietPlan[] = [
-  {
-    id: 'dp1',
-    name: 'High Protein Bulk',
-    goal: 'Muscle Growth & Lean Gain',
-    assignedTo: 'Amit Verma',
-    targetKcal: 2800,
-    targetProtein: 180,
-    targetCarbs: 320,
-    targetFat: 75,
-    meals: [
-      { type: 'Breakfast', food: '4 Egg Whites + 2 Whole Eggs, 75g Oats with Berries & Whey Protein Scoop', calories: 650, protein: 55, carbs: 62, fat: 16 },
-      { type: 'Lunch', food: '200g Grilled Chicken Breast, 150g Jasmine Rice, Stir-Fried Broccoli & Carrots', calories: 720, protein: 65, carbs: 70, fat: 12 },
-      { type: 'Dinner', food: '180g Baked Salmon Fillet, 200g Mashed Sweet Potatoes, Asparagus with Olive Oil', calories: 780, protein: 48, carbs: 55, fat: 28 },
-      { type: 'Snacks', food: 'Handful of Almonds, 1 Double-Scoop Whey Shake, 1 Banana', calories: 650, protein: 45, carbs: 45, fat: 18 }
-    ]
-  },
-  {
-    id: 'dp2',
-    name: 'Calorie Deficit Shred',
-    goal: 'Body Fat Reduction & Definition',
-    assignedTo: 'Neha Sharma',
-    targetKcal: 1600,
-    targetProtein: 120,
-    targetCarbs: 150,
-    targetFat: 45,
-    meals: [
-      { type: 'Breakfast', food: 'Egg White Scramble (5 whites), Sliced Avocado (50g), 1 slice Whole Wheat Toast', calories: 350, protein: 28, carbs: 22, fat: 14 },
-      { type: 'Lunch', food: '150g Grilled Turkey Breast, Giant Green Salad, 1tbsp Balsamic Vinaigrette', calories: 420, protein: 42, carbs: 18, fat: 8 },
-      { type: 'Dinner', food: '150g Grilled White Fish (Cod), Roasted Zucchini, Spinach, 100g Steamed Quinoa', calories: 450, protein: 38, carbs: 32, fat: 6 },
-      { type: 'Snacks', food: '150g Low-fat Greek Yogurt with Stevia, Mixed Berries (50g)', calories: 220, protein: 18, carbs: 15, fat: 2 }
-    ]
-  }
-];
-
 export function Nutrition() {
   const [plans, setPlans] = useState<DietPlan[]>(() => {
     const saved = localStorage.getItem('fc_nutrition');
-    return saved ? JSON.parse(saved) : initialDietPlans;
+    return saved ? JSON.parse(saved) : [];
   });
+
+  const [members, setMembers] = useState<any[]>([]);
+
+  useEffect(() => {
+    getMembers().then(setMembers);
+  }, []);
 
   const [showModal, setShowModal] = useState(false);
   const [activePlanId, setActivePlanId] = useState<string | null>(plans[0]?.id || null);
@@ -69,7 +42,7 @@ export function Nutrition() {
   // Form States
   const [name, setName] = useState('');
   const [goal, setGoal] = useState('Muscle Growth');
-  const [assignedTo, setAssignedTo] = useState('Amit Verma');
+  const [assigneeId, setAssigneeId] = useState('');
   const [targetKcal, setTargetKcal] = useState(2000);
   const [targetProtein, setTargetProtein] = useState(140);
   const [targetCarbs, setTargetCarbs] = useState(200);
@@ -114,11 +87,15 @@ export function Nutrition() {
     e.preventDefault();
     if (!name.trim() || meals.length === 0) return;
 
+    const member = members.find(m => m.id === assigneeId);
+    if (!member) return;
+
     const newPlan: DietPlan = {
       id: 'dp_' + Date.now(),
       name,
       goal,
-      assignedTo,
+      assigneeId: member.id,
+      assignedTo: member.fullName || member.name,
       targetKcal,
       targetProtein,
       targetCarbs,
@@ -326,14 +303,14 @@ export function Nutrition() {
                 <div className="sm:col-span-2">
                   <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-1.5">Assign to Member</label>
                   <select 
-                    value={assignedTo}
-                    onChange={e => setAssignedTo(e.target.value)}
+                    value={assigneeId}
+                    onChange={e => setAssigneeId(e.target.value)}
                     className="w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-red-500"
                   >
-                    <option value="Amit Verma">Amit Verma</option>
-                    <option value="Neha Sharma">Neha Sharma</option>
-                    <option value="Rahul Singh">Rahul Singh</option>
-                    <option value="Pooja Mehta">Pooja Mehta</option>
+                    <option value="">-- Select Member --</option>
+                    {members.map(m => (
+                      <option key={m.id} value={m.id}>{m.fullName || m.name}</option>
+                    ))}
                   </select>
                 </div>
                 <div>

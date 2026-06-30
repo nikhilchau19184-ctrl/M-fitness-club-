@@ -1,39 +1,43 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Users, UserCheck, Calendar, DollarSign } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { getMembers } from '../lib/db';
 
 const data = [
-  { name: 'Jan', value: 20 },
-  { name: 'Feb', value: 50 },
-  { name: 'Mar', value: 40 },
-  { name: 'Apr', value: 70 },
-  { name: 'May', value: 55 },
-  { name: 'Jun', value: 80 },
-  { name: 'Jul', value: 100 },
-];
-
-const popularClasses = [
-  { name: 'Strength Training', schedule: 'Mon, Wed, Fri - 7:00 AM', attendees: 25, image: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=100&auto=format&fit=crop&q=60' },
-  { name: 'Yoga', schedule: 'Tue, Thu - 8:00 AM', attendees: 20, image: 'https://images.unsplash.com/photo-1599901860904-17e6ed7083a0?w=100&auto=format&fit=crop&q=60' },
-  { name: 'Zumba', schedule: 'Mon, Wed - 6:00 PM', attendees: 18, image: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=100&auto=format&fit=crop&q=60' },
-  { name: 'HIIT', schedule: 'Sat - 9:00 AM', attendees: 15, image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=100&auto=format&fit=crop&q=60' },
-];
-
-const recentMembers = [
-  { name: 'Amit Verma', email: 'amit@gmail.com', plan: 'Platinum', date: '12 May 2024', avatar: 'https://ui-avatars.com/api/?name=Amit+Verma' },
-  { name: 'Neha Sharma', email: 'neha@gmail.com', plan: 'Gold', date: '11 May 2024', avatar: 'https://ui-avatars.com/api/?name=Neha+Sharma' },
-  { name: 'Rahul Singh', email: 'rahul@gmail.com', plan: 'Silver', date: '10 May 2024', avatar: 'https://ui-avatars.com/api/?name=Rahul+Singh' },
-  { name: 'Pooja Mehta', email: 'pooja@gmail.com', plan: 'Gold', date: '09 May 2024', avatar: 'https://ui-avatars.com/api/?name=Pooja+Mehta' },
-];
-
-const upcomingClasses = [
-  { time: '07:00 AM', name: 'Strength Training', trainer: 'Vikram' },
-  { time: '08:00 AM', name: 'Yoga', trainer: 'Anjali' },
-  { time: '06:00 PM', name: 'Zumba', trainer: 'Pooja' },
-  { time: '07:00 PM', name: 'HIIT', trainer: 'Rohit' },
+  { name: 'Jan', value: 0 },
+  { name: 'Feb', value: 0 },
+  { name: 'Mar', value: 0 },
+  { name: 'Apr', value: 0 },
+  { name: 'May', value: 0 },
+  { name: 'Jun', value: 0 },
+  { name: 'Jul', value: 0 },
 ];
 
 export function Dashboard({ isSuperAdmin }: { isSuperAdmin?: boolean }) {
+  const [members, setMembers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const mems = await getMembers();
+        setMembers(mems);
+      } catch(e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadData();
+  }, []);
+
+  const totalMembers = members.length;
+  const activeMembers = members.filter(m => m.status === 'Active').length;
+  const totalRevenue = members.reduce((sum, m) => sum + (Number(m.amountPaid) || 0), 0);
+  const recentMembers = members.slice(0, 4);
+  const popularClasses: any[] = [];
+  const upcomingClasses: any[] = [];
+
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
       {/* Super Admin Real-Time Log */}
@@ -47,32 +51,17 @@ export function Dashboard({ isSuperAdmin }: { isSuperAdmin?: boolean }) {
             <span className="text-xs bg-red-500/10 text-red-500 font-bold px-3 py-1 rounded-full uppercase tracking-wider">Super Admin View</span>
           </div>
           <div className="flex flex-col gap-2 h-40 overflow-y-auto pr-2 custom-scrollbar">
-            {[
-              { time: 'Just now', user: 'Amit Verma', action: 'Checked In', type: 'in', method: 'Biometric' },
-              { time: '2 mins ago', user: 'Rahul Singh', action: 'Checked Out', type: 'out', method: 'Biometric' },
-              { time: '5 mins ago', user: 'Pooja Mehta', action: 'Checked In', type: 'in', method: 'RFID Card' },
-              { time: '12 mins ago', user: 'Neha Sharma', action: 'Checked In', type: 'in', method: 'Manual Entry' },
-              { time: '15 mins ago', user: 'Vikram (Trainer)', action: 'Checked In', type: 'in', method: 'Biometric' },
-            ].map((log, i) => (
-              <div key={i} className="flex justify-between items-center p-3 bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl text-sm">
-                <div className="flex items-center gap-3">
-                  <span className="text-zinc-500 font-mono text-xs w-20">{log.time}</span>
-                  <span className="text-white font-bold">{log.user}</span>
-                  <span className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded ${log.type === 'in' ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`}>{log.action}</span>
-                </div>
-                <span className="text-xs text-zinc-500 font-medium">via {log.method}</span>
-              </div>
-            ))}
+            <div className="flex items-center justify-center h-full text-zinc-500 text-sm">Waiting for incoming check-ins...</div>
           </div>
         </div>
       )}
 
       {/* Stats Row */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard title="Total Members" value="1,250" trend="+12% this month" icon={<Users className="w-6 h-6 text-red-500" />} />
-        <StatCard title="Active Members" value="980" trend="78% of total" icon={<UserCheck className="w-6 h-6 text-green-500" />} trendColor="text-zinc-400" />
-        <StatCard title="Today's Bookings" value="25" trend="+8% this week" icon={<Calendar className="w-6 h-6 text-blue-500" />} />
-        <StatCard title="Monthly Revenue" value="₹3,45,000" trend="+18% this month" icon={<DollarSign className="w-6 h-6 text-yellow-500" />} />
+        <StatCard title="Total Members" value={totalMembers.toString()} trend="Current Active" icon={<Users className="w-6 h-6 text-red-500" />} trendColor="text-zinc-500" />
+        <StatCard title="Active Members" value={activeMembers.toString()} trend={`${totalMembers ? Math.round((activeMembers/totalMembers)*100) : 0}% of total`} icon={<UserCheck className="w-6 h-6 text-green-500" />} trendColor="text-zinc-500" />
+        <StatCard title="Today's Bookings" value="0" trend="No data yet" icon={<Calendar className="w-6 h-6 text-blue-500" />} trendColor="text-zinc-500" />
+        <StatCard title="Total Revenue" value={`₹${totalRevenue.toLocaleString()}`} trend="All time" icon={<DollarSign className="w-6 h-6 text-yellow-500" />} trendColor="text-zinc-500" />
       </div>
 
       {/* Charts & Popular Classes */}

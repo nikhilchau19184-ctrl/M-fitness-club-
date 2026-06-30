@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Plus, Check, X, Calendar, User, Clock, Trash2 } from 'lucide-react';
+import { getMembers } from '../lib/db';
 
 interface Booking {
   id: string;
+  memberId: string;
   memberName: string;
   memberEmail: string;
   className: string;
@@ -12,28 +14,27 @@ interface Booking {
   status: 'Approved' | 'Pending' | 'Cancelled';
 }
 
-const initialBookings: Booking[] = [
-  { id: 'b1', memberName: 'Amit Verma', memberEmail: 'amit@gmail.com', className: 'Strength Training', trainerName: 'Vikram', date: '2026-06-25', time: '07:00 AM', status: 'Approved' },
-  { id: 'b2', memberName: 'Neha Sharma', memberEmail: 'neha@gmail.com', className: 'Yoga', trainerName: 'Anjali', date: '2026-06-25', time: '08:00 AM', status: 'Pending' },
-  { id: 'b3', memberName: 'Rahul Singh', memberEmail: 'rahul@gmail.com', className: 'Zumba', trainerName: 'Pooja', date: '2026-06-25', time: '06:00 PM', status: 'Pending' },
-  { id: 'b4', memberName: 'Pooja Mehta', memberEmail: 'pooja@gmail.com', className: 'HIIT', trainerName: 'Rohit', date: '2026-06-25', time: '07:00 PM', status: 'Cancelled' },
-];
-
 export function Bookings() {
   const [bookings, setBookings] = useState<Booking[]>(() => {
     const saved = localStorage.getItem('fc_bookings');
-    return saved ? JSON.parse(saved) : initialBookings;
+    return saved ? JSON.parse(saved) : [];
   });
+
+  const [members, setMembers] = useState<any[]>([]);
+
+  useEffect(() => {
+    getMembers().then(setMembers);
+  }, []);
 
   const [activeTab, setActiveTab] = useState<'All' | 'Pending' | 'Approved' | 'Cancelled'>('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [showModal, setShowModal] = useState(false);
 
   // New Booking Form States
-  const [newMember, setNewMember] = useState('Amit Verma');
+  const [newMemberId, setNewMemberId] = useState('');
   const [newClass, setNewClass] = useState('Strength Training');
   const [newTrainer, setNewTrainer] = useState('Vikram');
-  const [newDate, setNewDate] = useState('2026-06-25');
+  const [newDate, setNewDate] = useState('');
   const [newTime, setNewTime] = useState('07:00 AM');
 
   useEffect(() => {
@@ -50,16 +51,14 @@ export function Bookings() {
 
   const handleCreateBooking = (e: React.FormEvent) => {
     e.preventDefault();
-    const emails: Record<string, string> = {
-      'Amit Verma': 'amit@gmail.com',
-      'Neha Sharma': 'neha@gmail.com',
-      'Rahul Singh': 'rahul@gmail.com',
-      'Pooja Mehta': 'pooja@gmail.com',
-    };
+    const member = members.find(m => m.id === newMemberId);
+    if (!member) return;
+
     const booking: Booking = {
       id: 'b_' + Date.now(),
-      memberName: newMember,
-      memberEmail: emails[newMember] || 'member@gmail.com',
+      memberId: member.id,
+      memberName: member.fullName || member.name,
+      memberEmail: member.email || 'member@gmail.com',
       className: newClass,
       trainerName: newTrainer,
       date: newDate,
@@ -227,14 +226,14 @@ export function Bookings() {
               <div>
                 <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-1.5">Select Member</label>
                 <select 
-                  value={newMember}
-                  onChange={e => setNewMember(e.target.value)}
+                  value={newMemberId}
+                  onChange={e => setNewMemberId(e.target.value)}
                   className="w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-red-500"
                 >
-                  <option value="Amit Verma">Amit Verma</option>
-                  <option value="Neha Sharma">Neha Sharma</option>
-                  <option value="Rahul Singh">Rahul Singh</option>
-                  <option value="Pooja Mehta">Pooja Mehta</option>
+                  <option value="">-- Select Member --</option>
+                  {members.map(m => (
+                    <option key={m.id} value={m.id}>{m.fullName || m.name}</option>
+                  ))}
                 </select>
               </div>
 

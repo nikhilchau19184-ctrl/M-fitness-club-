@@ -11,11 +11,7 @@ interface Enquiry {
   notes: string;
 }
 
-const initialEnquiries: Enquiry[] = [
-  { id: 'eq1', name: 'Sanjay Kumar', phone: '9876543210', interest: 'Yearly Plan + PT', status: 'New', date: '2026-06-27', notes: 'Looking for evening batches.' },
-  { id: 'eq2', name: 'Riya Singh', phone: '9123456780', interest: 'Yoga & Aerobics', status: 'Follow-Up', date: '2026-06-25', notes: 'Will visit on Saturday.' },
-  { id: 'eq3', name: 'Mohit Sharma', phone: '9988776655', interest: 'Monthly Plan', status: 'Converted', date: '2026-06-20', notes: 'Joined on 21st.' },
-];
+const initialEnquiries: Enquiry[] = [];
 
 export function Enquiries() {
   const [enquiries, setEnquiries] = useState<Enquiry[]>(() => {

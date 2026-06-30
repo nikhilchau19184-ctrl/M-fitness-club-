@@ -1,12 +1,7 @@
 import React from 'react';
 import { Plus, Star, MoreHorizontal, Mail, Phone } from 'lucide-react';
 
-const trainers = [
-  { id: 1, name: 'Vikram Singh', specialty: 'Strength Training', rating: 4.8, clients: 24, avatar: 'https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=150&h=150&fit=crop' },
-  { id: 2, name: 'Anjali Desai', specialty: 'Yoga & Pilates', rating: 4.9, clients: 31, avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop' },
-  { id: 3, name: 'Rohit Sharma', specialty: 'HIIT & Cardio', rating: 4.7, clients: 18, avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&h=150&fit=crop' },
-  { id: 4, name: 'Pooja Kapoor', specialty: 'Zumba & Dance', rating: 4.9, clients: 42, avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop' },
-];
+const trainers: any[] = [];
 
 export function Trainers() {
   return (

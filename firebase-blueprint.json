@@ -1,0 +1,95 @@
+{
+  "collections": [
+    {
+      "name": "users",
+      "fields": [
+        { "name": "role", "type": "string" },
+        { "name": "name", "type": "string" },
+        { "name": "email", "type": "string" }
+      ],
+      "rules": {
+        "read": "true",
+        "write": "auth != null"
+      }
+    },
+    {
+      "name": "members",
+      "fields": [
+        { "name": "memberId", "type": "string" },
+        { "name": "fullName", "type": "string" },
+        { "name": "gender", "type": "string" },
+        { "name": "dateOfBirth", "type": "string" },
+        { "name": "age", "type": "number" },
+        { "name": "phone", "type": "string" },
+        { "name": "whatsapp", "type": "string" },
+        { "name": "email", "type": "string" },
+        { "name": "address", "type": "string" },
+        { "name": "emergencyContact", "type": "string" },
+        { "name": "emergencyPhone", "type": "string" },
+        { "name": "height", "type": "number" },
+        { "name": "weight", "type": "number" },
+        { "name": "bmi", "type": "number" },
+        { "name": "fitnessGoal", "type": "string" },
+        { "name": "medicalConditions", "type": "string" },
+        { "name": "allergies", "type": "string" },
+        { "name": "injuries", "type": "string" },
+        { "name": "joinDate", "type": "timestamp" },
+        { "name": "plan", "type": "string" },
+        { "name": "startDate", "type": "timestamp" },
+        { "name": "expiryDate", "type": "timestamp" },
+        { "name": "status", "type": "string" },
+        { "name": "trainer", "type": "string" },
+        { "name": "fee", "type": "number" },
+        { "name": "amountPaid", "type": "number" },
+        { "name": "pendingAmount", "type": "number" },
+        { "name": "username", "type": "string" }
+      ],
+      "rules": {
+        "read": "true",
+        "write": "auth != null"
+      }
+    },
+    {
+      "name": "attendance",
+      "fields": [
+        { "name": "memberId", "type": "string" },
+        { "name": "date", "type": "string" },
+        { "name": "checkIn", "type": "timestamp" },
+        { "name": "checkOut", "type": "timestamp" },
+        { "name": "method", "type": "string" }
+      ],
+      "rules": {
+        "read": "true",
+        "write": "auth != null"
+      }
+    },
+    {
+      "name": "payments",
+      "fields": [
+        { "name": "memberId", "type": "string" },
+        { "name": "amount", "type": "number" },
+        { "name": "date", "type": "timestamp" },
+        { "name": "method", "type": "string" },
+        { "name": "type", "type": "string" }
+      ],
+      "rules": {
+        "read": "auth != null",
+        "write": "auth != null"
+      }
+    },
+    {
+      "name": "communication_logs",
+      "fields": [
+        { "name": "recipient", "type": "string" },
+        { "name": "type", "type": "string" },
+        { "name": "message", "type": "string" },
+        { "name": "timestamp", "type": "timestamp" },
+        { "name": "status", "type": "string" }
+      ],
+      "rules": {
+        "read": "auth != null",
+        "write": "auth != null"
+      }
+    }
+  ]
+}

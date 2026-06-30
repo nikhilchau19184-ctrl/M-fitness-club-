@@ -91,23 +91,10 @@ export function Finances() {
               </tr>
             </thead>
             <tbody>
-              <tr className="border-b border-[#1f1f1f] hover:bg-[#1a1a1a]">
-                <td className="py-3 px-3 text-sm text-zinc-400">2026-06-25</td>
-                <td className="py-3 px-3 text-sm text-white font-medium">Equipment Maintenance</td>
-                <td className="py-3 px-3 text-sm text-zinc-400">Treadmill belt replacement</td>
-                <td className="py-3 px-3 text-sm text-red-500 font-mono text-right">-₹12,500</td>
-              </tr>
-              <tr className="border-b border-[#1f1f1f] hover:bg-[#1a1a1a]">
-                <td className="py-3 px-3 text-sm text-zinc-400">2026-06-20</td>
-                <td className="py-3 px-3 text-sm text-white font-medium">Utilities</td>
-                <td className="py-3 px-3 text-sm text-zinc-400">Electricity Bill</td>
-                <td className="py-3 px-3 text-sm text-red-500 font-mono text-right">-₹25,000</td>
-              </tr>
-              <tr className="hover:bg-[#1a1a1a]">
-                <td className="py-3 px-3 text-sm text-zinc-400">2026-06-15</td>
-                <td className="py-3 px-3 text-sm text-white font-medium">Marketing</td>
-                <td className="py-3 px-3 text-sm text-zinc-400">Instagram Ads</td>
-                <td className="py-3 px-3 text-sm text-red-500 font-mono text-right">-₹8,000</td>
+              <tr>
+                <td colSpan={4} className="py-10 text-center text-zinc-500 text-sm">
+                  No expenses recorded.
+                </td>
               </tr>
             </tbody>
           </table>
@@ -133,34 +120,9 @@ export function Finances() {
               </tr>
             </thead>
             <tbody>
-              <tr className="border-b border-[#1f1f1f] hover:bg-[#1a1a1a]">
-                <td className="py-3 px-3 text-sm text-white font-medium">Vikram Singh</td>
-                <td className="py-3 px-3 text-sm text-zinc-400">Senior Trainer</td>
-                <td className="py-3 px-3 text-sm text-white font-mono text-right">₹40,000</td>
-                <td className="py-3 px-3 text-sm text-green-500 font-mono text-right">+₹12,000</td>
-                <td className="py-3 px-3 text-sm text-white font-mono font-bold text-right">₹52,000</td>
-                <td className="py-3 px-3 text-center">
-                  <span className="text-[10px] bg-green-500/10 text-green-500 border border-green-500/20 px-2 py-0.5 rounded-full font-bold uppercase">Paid</span>
-                </td>
-              </tr>
-              <tr className="border-b border-[#1f1f1f] hover:bg-[#1a1a1a]">
-                <td className="py-3 px-3 text-sm text-white font-medium">Anjali Desai</td>
-                <td className="py-3 px-3 text-sm text-zinc-400">Yoga Instructor</td>
-                <td className="py-3 px-3 text-sm text-white font-mono text-right">₹35,000</td>
-                <td className="py-3 px-3 text-sm text-green-500 font-mono text-right">+₹8,500</td>
-                <td className="py-3 px-3 text-sm text-white font-mono font-bold text-right">₹43,500</td>
-                <td className="py-3 px-3 text-center">
-                  <button className="text-[10px] bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded-md font-bold uppercase transition-colors">Process Pay</button>
-                </td>
-              </tr>
-              <tr className="hover:bg-[#1a1a1a]">
-                <td className="py-3 px-3 text-sm text-white font-medium">Pooja Sharma</td>
-                <td className="py-3 px-3 text-sm text-zinc-400">Zumba Trainer</td>
-                <td className="py-3 px-3 text-sm text-white font-mono text-right">₹30,000</td>
-                <td className="py-3 px-3 text-sm text-green-500 font-mono text-right">-</td>
-                <td className="py-3 px-3 text-sm text-white font-mono font-bold text-right">₹30,000</td>
-                <td className="py-3 px-3 text-center">
-                  <span className="text-[10px] bg-green-500/10 text-green-500 border border-green-500/20 px-2 py-0.5 rounded-full font-bold uppercase">Paid</span>
+              <tr>
+                <td colSpan={6} className="py-10 text-center text-zinc-500 text-sm">
+                  No staff payroll recorded.
                 </td>
               </tr>
             </tbody>
