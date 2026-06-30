@@ -1,0 +1,8 @@
+{
+  "name": "Fitness Club Management",
+  "description": "Modern fitness club management software for admins, trainers, and members.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
